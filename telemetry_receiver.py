@@ -277,22 +277,21 @@ def print_gpb_kv_hdr (header):
     Print the key-value GPB message header
     """
     print("""
-Collection ID:{}
-Base Path:{}
-Subscription ID:{}
-Model Version:{}
-Start Time:{}
-Msg Timestamp: {}
-End Time:{}
-# Fields: {}""".format(header.collection_id,
+Collection ID:   {}
+Base Path:       {}
+Subscription ID: {}
+Model Version:   {}""".format(header.collection_id,
            header.base_path,
            header.subscription_identifier,
-           header.model_version,
-           timestamp_to_string(header.collection_start_time),
-           timestamp_to_string(header.msg_timestamp),
-           timestamp_to_string(header.collection_end_time),
-           len(header.fields))
-)
+           header.model_version))
+    # start and end time are not always present
+    if header.collection_start_time > 0:
+        print("Start Time:      {}".format(timestamp_to_string(header.collection_start_time)))
+    print("Msg Timestamp:   {}".format(timestamp_to_string(header.msg_timestamp)))
+    if header.collection_end_time > 0:
+        print("End Time:      {}".format(timestamp_to_string(header.collection_end_time)))
+    print("Fields: {}".format(len(header.fields))) 
+
     
 
 def decode_gpb_kv (message):
@@ -358,6 +357,10 @@ def print_json_data(obj, indent):
                                 indent)
                 print_json_data(obj[key], indent + 1)
                 print_at_indent("]", indent)
+            elif key == "CollectionTime":
+                # Pretty-print collection timestamp
+                print_at_indent("{}: {}".format(key, timestamp_to_string(child)), 
+                                indent)
             else:
                 print_at_indent("{}: {}".format(key, str(child)), indent)
     elif type(obj) == list:
