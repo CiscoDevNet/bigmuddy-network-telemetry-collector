@@ -71,7 +71,7 @@ def print_json_data(obj, indent, args):
                 try:
                     print_at_indent("{}: {}".format(key, str(child)), indent)
                 except Exception:
-                    prnit_at_indent("{}: {}".format(key, 
+                    print_at_indent("{}: {}".format(key, 
                                                     bytes_to_string(child)),
                                     indent) 
     elif type(obj) == list:
