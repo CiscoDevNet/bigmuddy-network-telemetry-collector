@@ -43,6 +43,7 @@ def compile_proto_file(input_files, output_path, include_path):
     command = ["protoc","--python_out", output_path, "-I", include_path] + input_files.split(',')
     try:
         call(command)
+        print("Compiled {}".format(input_files))
     except OSError as e:
         print("ERROR: unable to run command '{}'. Make sure protoc is "
               "present in your path".format(" ".join(command)))
@@ -76,14 +77,17 @@ def gpb_decoder_init(args):
     create a mapping between policy paths and proto files specified on the 
     command line.
     """
+    # Build any proto files not already available
+    proto_files = ["descriptor", "cisco", "telemetry"]
+
+    for file in proto_files:
+        if not os.path.isfile("{}/{}_pb2.py".format(args.tmp_dir, file)):
+            compile_proto_file("{}.proto".format(file), args.tmp_dir, 
+                               args.include_path)
+
     global telemetry_pb2
-    try:
-        import telemetry_pb2
-    except:
-        compile_proto_file("telemetry.proto", args.tmp_dir, args.include_path)
-        compile_proto_file("descriptor.proto", args.tmp_dir, args.include_path)
-        compile_proto_file("cisco.proto", args.tmp_dir, args.include_path)
-        import telemetry_pb2
+    import telemetry_pb2
+
 
     # Key-value protobuf cannot be compiled using the old version of protoc 
     # available so use a local pre-compiled version.
