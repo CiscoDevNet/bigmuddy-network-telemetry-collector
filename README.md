@@ -13,11 +13,16 @@ This will cause it to listen on the specified address and port and print the rec
 ## GPB support
 
 XR supports streaming data in either JSON or GPB format and the collector handles both. However in order to decode and print the data in GPB messages it is necessary to provide the .proto file(s) used to encode it using the option below. The collector will use protoc to compile these into the necessary python code.
+
      --protos <proto1> <proto2> ...
 
 Alternatively, if protoc is not available locally but the .proto files have been compiled elsewhere then you can specify a directory in which the compiled .py files reside using:
+
      --tmp-dir <path_to_py_files>
     
+If you don't have protoc available then you can download it from https://github.com/google/protobuf/releases/download/v3.0.0-beta-2/protoc-3.0.0-beta-2-linux-x86_64.zip and then point the telemetry_receiver script at it using 
+
+     --include-path .:<path to unzipped directory>
 
 ## Using telemetry
 
