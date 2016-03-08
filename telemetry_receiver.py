@@ -67,7 +67,7 @@ def get_v1_message(length, c):
             print("  Mesage TLV")
             c_msg = x[1]
             j_msg_b = v1_deco.decompress(c_msg)
-            if json_dump:
+            if args.json_dump:
                 # Print the message as-is
                 print(j_msg_b)
             else:
