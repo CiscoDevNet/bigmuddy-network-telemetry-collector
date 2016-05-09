@@ -24,6 +24,7 @@ import os
 import threading
 import struct
 import zlib
+import ipaddress
 from receiver_json import decode_json
 from receiver_gpb import gpb_decoder_init, decode_gpb_kv, decode_gpb_compact
 
@@ -274,16 +275,18 @@ parser.add_argument("--include-path",
 #
 # Parse all arguments and bind to the specified IP address and port
 args = parser.parse_args(sys.argv[1:])
+ 
+# Figure out if the supplied address is ipv4 or ipv6 and set the socet type
+# appropriately
+listen_address = ipaddress.ip_address(unicode(args.ip_address))
+socket_type = socket.AF_INET if listen_address.version == 4 else socket.AF_INET6   
 
-
-#
 # Bind to two sockets to handle either UDP or TCP data
-udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udp_sock = socket.socket(socket_type, socket.SOCK_DGRAM)
 udp_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 udp_sock.bind((args.ip_address, args.port))
 
-
-tcp_sock = socket.socket()
+tcp_sock = socket.socket(socket_type)
 tcp_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 tcp_sock.bind((args.ip_address, args.port))
 tcp_sock.listen(1)
