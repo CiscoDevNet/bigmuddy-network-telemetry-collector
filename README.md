@@ -7,7 +7,9 @@ The collector process can be run using the following invocation:
     telemetry_receiver.py --ip-address <addr> --port <port> 
 
 This will cause it to listen on the specified address and port and print the received messages. Where the data is tabular it will by default display only the first row in each table. The following options can be used to change this behavior:
+
      --brief - display only the message headers. No data
+
      --print-all - display all data (can be very verbose)
 
 ## GPB support
