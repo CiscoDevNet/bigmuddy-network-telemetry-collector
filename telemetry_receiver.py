@@ -24,7 +24,6 @@ import os
 import threading
 import struct
 import zlib
-import ipaddress
 from receiver_json import decode_json
 from receiver_gpb import gpb_decoder_init, decode_gpb_kv, decode_gpb_compact
 
@@ -221,6 +220,32 @@ def udp_loop():
         # All UDP packets contain compact GPB messages
         decode_gpb_compact(raw_message, args)
 
+##############################################################################
+# IP address parsing
+##############################################################################
+
+def is_valid_ipv4_address(address):
+    try:
+        socket.inet_pton(socket.AF_INET, address)
+    except AttributeError:  # no inet_pton here, sorry
+        try:
+            socket.inet_aton(address)
+        except socket.error:
+            return False
+        return address.count('.') == 3
+    except socket.error:  # not a valid address
+        return False
+
+    return True
+
+def is_valid_ipv6_address(address):
+    try:
+        socket.inet_pton(socket.AF_INET6, address)
+    except socket.error:  # not a valid address
+        return False
+    return True
+
+
 ###############################################################################
 # Main
 ###############################################################################
@@ -278,9 +303,13 @@ args = parser.parse_args(sys.argv[1:])
  
 # Figure out if the supplied address is ipv4 or ipv6 and set the socet type
 # appropriately
-listen_address = ipaddress.ip_address(unicode(args.ip_address))
-socket_type = socket.AF_INET if listen_address.version == 4 else socket.AF_INET6   
-
+if is_valid_ipv4_address(args.ip_address):
+    socket_type = socket.AF_INET
+elif is_valid_ipv6_address(args.ip_address):
+    socket_type = socket.AF_INET6   
+else:
+    print("ERROR: Invalid ip address '{}'".format(args.ip_address))
+    exit(1)
 # Bind to two sockets to handle either UDP or TCP data
 udp_sock = socket.socket(socket_type, socket.SOCK_DGRAM)
 udp_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
